@@ -1,0 +1,1 @@
+To build install CMake if not already installed. Then open a command prompt/terminal in the root directory and type cmake CMakeLists.txt and the project will build and automatically fetch any external dependencies (only raylib at the moment). Only officially supporting Linux and Windows, but Mac may or may not work.
