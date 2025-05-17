@@ -1,6 +1,7 @@
 #include "worldgen.h"
 #include "core.h"
 #include "raylib.h"
+#include <math.h>
 
 f32 computeFalloff(f32 distance, f32 radius) {
 	f32 x = CLAMP((radius - distance) / radius, 0.0f, 1.0f);

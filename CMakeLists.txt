@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(test C CXX)  # explicitly declare C and C++ languages
+project(TheDelver C CXX)  # explicitly declare C and C++ languages
 
 # Use C99 for C files
 set(CMAKE_C_STANDARD 99)
@@ -47,14 +47,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC RESOURCES_PATH="${CMAKE_CURREN
 # Include paths
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
-# Find and link raylib (on both Linux and Windows)
-# find_package(raylib 5.5 REQUIRED)  # make sure raylib is installed via package manager or installed manually
-
-
-
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
-# Optional: On Linux link required system libraries for raylib
+# On Linux link required system libraries for raylib
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE m pthread dl rt X11)
 endif()

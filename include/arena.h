@@ -4,6 +4,11 @@
 #include "types.h"
 #include <stddef.h>
 
+// Defnitions for memory sizes
+#define KB(x) ((x) * 1024UL)
+#define MB(x) (KB(x) * 1024UL)
+#define GB(x) (MB(x) * 1024UL)
+
 typedef struct Arena {
 	u8 *base;
 	size_t capacity;

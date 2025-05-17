@@ -1,29 +1,30 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include <stdlib.h>
-#include <stdint.h>
-
 #include "raylib.h"
-#include "raymath.h"
-#include "types.h"
+#include "gamescene.h"
 #include "tile.h"
-#include "worldgen.h"
-#include "arena.h"
-#include "spriteatlas.h"
-#include "spriterenderer.h"
+#include "types.h"
+#include "player.h"
 
 // Basic world features definitions
 #define TILESIZE 16
 #define WORLDX 128
 #define WORLDY 128
 
+// How many tiles should be visible on screen
+#define VISIBLETILESX 16
+#define VISIBLETILESY 9
+
 // Clamping function for i32 values
 #define CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
 
-// Defnitions for memory sizes
-#define KB(x) ((x) * 1024UL)
-#define MB(x) (KB(x) * 1024UL)
-#define GB(x) (MB(x) * 1024UL)
+typedef struct GameState {
+	i32 seed; // used to store the random seed chosen by user
+	GameScene scene; // current screen the game is in
+	Player player; // Holds information for the player
+	Camera2D camera; // 2d game camera
+	Tile* worldMap; // Overworld map stored as array
+} GameState;
 
 #endif
