@@ -6,6 +6,7 @@
 typedef struct Tile {
 	int spriteIdx;
 	bool passable;
+	bool debugHighlight;
 } Tile;
 
 

@@ -22,8 +22,8 @@ void updateCamera(Camera2D *camera, const Player *player, i32 mapWidth, i32 mapH
 	f32 halfWidth = (VISIBLETILESX * TILESIZE) / 2.0f;
 	f32 halfHeight = (VISIBLETILESY * TILESIZE) / 2.0f;
 
-	f32 targetX = player->position.x * TILESIZE;
-	f32 targetY = player->position.y * TILESIZE;
+	f32 targetX = (player->position.x + 0.5f) * TILESIZE;
+	f32 targetY = (player->position.y + 0.5f) * TILESIZE;
 
 	targetX = CLAMP(targetX, halfWidth, mapWidth - halfWidth);
 	targetY = CLAMP(targetY, halfHeight, mapHeight - halfHeight);

@@ -1,7 +1,15 @@
 #include "worldgen.h"
+#include "arena.h"
 #include "core.h"
+#include "pathfinding.h"
+
 #include "raylib.h"
+
+
 #include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 f32 computeFalloff(f32 distance, f32 radius) {
 	f32 x = CLAMP((radius - distance) / radius, 0.0f, 1.0f);
@@ -41,10 +49,10 @@ void propagateError(Tile *tileMap, Image *noise, Color *pixels, i32 rows, i32 co
 }
 
 void generateWorld(Tile *tileMap, i32 rows, i32 cols) {
-	Tile mountain = { .spriteIdx = 9, .passable = false };
-	Tile grass = { .spriteIdx = 8, .passable = true };
-	Tile forest = { .spriteIdx = 10, .passable = true };
-	Tile city = { .spriteIdx = 15, .passable = true };
+	Tile mountain = { .spriteIdx = 9, .passable = false, .debugHighlight = false, };
+	Tile grass = { .spriteIdx = 8, .passable = true, .debugHighlight = false, };
+	Tile forest = { .spriteIdx = 10, .passable = true, .debugHighlight = false };
+	Tile city = { .spriteIdx = 15, .passable = true, .debugHighlight = false, };
 
 	// Get center of world
 	f32 centerX = rows / 2.0f;
@@ -107,3 +115,68 @@ void generateWorld(Tile *tileMap, i32 rows, i32 cols) {
 	UnloadImage(forestNoise);
 }
 
+void placeDungeons(Tile *tileMap, i32 rows, i32 cols, GameState *game, i32 numDungeons, Arena *temp) {
+	Tile dungeon = { .spriteIdx = 14, .passable = true, .debugHighlight = false };
+	Vec2i center = { cols/2, rows / 2 };
+
+	Vec2i candidates[cols * rows];
+	i32 candidateCount = 0;
+
+	// Collect valid tiles that border passable terrain
+	for (i32 y = MARGIN; y < rows - MARGIN; y++) {
+		for (i32 x = MARGIN; x < cols - MARGIN; x++) {
+			i32 idx = y * cols + x;
+			if (tileMap[idx].spriteIdx != 9) continue;
+
+			bool hasPassableNeighbor = false;
+			for (i32 dy = -1; dy <= 1 && !hasPassableNeighbor; dy++) {
+				for (i32 dx = -1; dx <= 1 && !hasPassableNeighbor; dx++) {
+					if (dx == 0 && dy == 0) continue;
+					i32 nx = x + dx;
+					i32 ny = y + dy;
+					if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+						Tile neighbor = tileMap[ny * cols + nx];
+						if (neighbor.passable) {
+							hasPassableNeighbor = true;
+						}
+					}
+				}
+			}
+
+			if(hasPassableNeighbor) {
+				// tileMap[idx].debugHighlight = true;
+				candidates[candidateCount++] = (Vec2i){ x, y };
+			}
+		}
+	}
+
+	// Shuffle Candidate list
+	for (i32 i = candidateCount - 1; i > 0; i--) {
+		i32 j = GetRandomValue(0, i);
+		Vec2i tempSwap = candidates[i];
+		candidates[i] = candidates[j];
+		candidates[j] = tempSwap;
+	}
+
+	// Attempt Dungeon Placement
+	i32 placedDungeons = 0;
+	for (i32 i = 0; i < candidateCount && placedDungeons < numDungeons; i++) {
+		Vec2i pos = candidates[i];
+
+		bool tooClose = false;
+		for (i32 j = 0; j < placedDungeons; j++) {
+			if (abs(pos.x - game->dungeons[j].x) + abs(pos.y - game->dungeons[j].y) < VISIBLETILESX) {
+				tooClose = true;
+				break;
+			}
+		}
+		if (tooClose) continue;
+		
+		// Check if path to center exists
+		arenaReset(temp);
+		if(canReachFromAdjacent(tileMap, rows, cols, pos, center, temp)) {
+			tileMap[pos.y * cols + pos.x] = dungeon;
+			game->dungeons[placedDungeons++] = pos;
+		}
+	}
+}

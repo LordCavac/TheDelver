@@ -8,13 +8,13 @@
 #include "scenemanager.h"
 #include "player.h"
 #include "camera.h"
-#include <stdio.h>
 
 // Maximum characters for world seed
 #define MAX_INPUT 4
 
 int main() {
 	Arena *game = arenaCreate(MB(64));
+	Arena *temp = arenaCreate(MB(64));
 
 	GameState *gameState = arenaAlloc(game, sizeof(GameState));
 	if (!gameState) return 1;
@@ -23,8 +23,9 @@ int main() {
 	if (!gameState->worldMap) return 1;
 	
 	generateWorld(gameState->worldMap, WORLDX, WORLDY);
+	placeDungeons(gameState->worldMap, WORLDX, WORLDY, gameState, DUNGEONS, temp);
 	
-	InitWindow(1920, 1080, "The Delver");
+	InitWindow(INITSCREENX, INITSCREENY, "The Delver");
 	SetWindowState(FLAG_WINDOW_RESIZABLE);
 	
 	loadSpriteAtlas("../resources/TheDelverSpriteSheet.png");
@@ -39,9 +40,12 @@ int main() {
 	{	
 		updateScene(gameState);
 		drawScene(gameState);
+		arenaReset(temp);
 	}
 
 	CloseWindow();
+	
+	arenaDestroy(game);
 
 	return 0;
 }
